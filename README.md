@@ -1,39 +1,98 @@
-# HelioCast: Advanced Space Weather Intelligence Platform
+# ☀️ HelioCast - AI-Powered Space Weather Intelligence
 
-## Problem Statement
-Space weather—comprising solar flares, coronal mass ejections (CMEs), and high-speed solar wind streams—poses a significant threat to modern technological infrastructure. Severe geomagnetic storms can disrupt satellite communications, damage power grids, and endanger astronauts. Accurate, real-time forecasting of solar wind speed and its associated parameters is essential to provide early warnings and mitigate these risks. HelioCast aims to provide an advanced, explainable, and highly accurate forecasting platform for short-term space weather anomalies.
+![HelioCast Banner](https://img.shields.io/badge/Status-Live-success?style=for-the-badge)
+![Python](https://img.shields.io/badge/Python-3.10+-blue?style=for-the-badge&logo=python)
+![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white)
+![Vite](https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white)
+![Machine Learning](https://img.shields.io/badge/Machine_Learning-XGBoost_|_Scikit--Learn-orange?style=for-the-badge)
 
-## Dataset
-This project utilizes the **OMNI2 Space Weather Dataset** provided by NASA/NOAA. The dataset aggregates multi-spacecraft observations into a continuous timeline.
-- **Historical Training Data**: ~100,000 real chronological records encompassing solar wind speed, proton density, plasma temperature, and the Z-component of the interplanetary magnetic field (Bz).
-- **Live Inference Data**: Real-time integration with the NOAA Space Weather Prediction Center (SWPC) 1-minute JSON feeds (`plasma-1-day.json` and `mag-1-day.json`).
+**Live Demo:** [https://helioscast.onrender.com](https://helioscast.onrender.com/)
 
-## Methodology
-The platform employs a robust Machine Learning pipeline that forecasts solar wind speed 1-hour into the future:
-1. **Feature Engineering**: Incorporation of temporal lag features ($t-1$ and $t-2$) for speed and density to capture time-series momentum and trends.
-2. **Model Ensemble Comparison**:
-   - **Random Forest Regressor**: Used primarily to extract standard deviations across decision trees for prediction confidence intervals.
-   - **XGBoost (Extreme Gradient Boosting)**: Employed as the primary inference engine due to its exceptional performance and speed on tabular time-series data.
-   - **LSTM (Long Short-Term Memory Network)**: A deep learning baseline utilizing Keras/TensorFlow to capture complex non-linear temporal dependencies.
-3. **Explainable AI (XAI)**: `shap.TreeExplainer` is integrated with the XGBoost model to compute SHAP (SHapley Additive exPlanations) values in real-time, providing transparency into which physical parameters drove a specific forecast.
+HelioCast is an advanced, real-time Space Weather monitoring and prediction platform. It fetches live solar wind data from official NASA/NOAA satellites (DSCOVR/ACE) and uses an ensemble of Machine Learning models to predict future solar wind speeds and assess geomagnetic storm risks.
 
-## Results
-The models were evaluated chronologically on a hold-out test set (20%). The primary evaluation metrics are Root Mean Squared Error (RMSE) and Mean Absolute Error (MAE):
-- **XGBoost Regressor**: MAE ~ 10.44 km/s | RMSE ~ 17.89 km/s
-- **Random Forest**: MAE ~ 10.50 km/s | RMSE ~ 18.10 km/s
-- **LSTM Network**: Comparable baseline efficiency, though slightly higher latency for real-time inference.
+---
 
-*Note: With an average solar wind speed of ~400 km/s, an MAE of 10.44 km/s represents an error margin of approximately 2.5%, indicating high forecasting reliability.*
+## 🚀 Key Features
 
-## Architecture
-The HelioCast platform is designed as a decoupled, modern web application:
-- **Backend**: FastAPI (Python) serving REST endpoints.
-  - `/current-conditions`: Fetches and streams live SWPC JSON data.
-  - `/predict`: Executes the XGBoost model, computes the 95% confidence interval via Random Forest, and generates SHAP values.
-- **Frontend**: A sleek, glassmorphism UI built with Vanilla JS, HTML, and CSS (via Vite), utilizing `Chart.js` for dynamic time-series visualization.
-- **Machine Learning**: `scikit-learn`, `xgboost`, `tensorflow`, and `shap`.
+- **Real-Time Data Streaming:** Uses WebSockets to stream live solar wind metrics (Speed, Density, Temperature, Bz) directly to the dashboard.
+- **AI/ML Forecasting:** Uses a robust ML pipeline (XGBoost & RandomForest) trained on historical OMNI data to predict solar wind speed for the next hour.
+- **Explainable AI (XAI):** Integrates **SHAP** (SHapley Additive exPlanations) to provide real-time transparency into which space weather parameters (e.g., Density vs. Magnetic Field Bz) are driving the AI\'s predictions.
+- **Fault-Tolerant Cache System:** Built-in offline fallback mechanism. If the NOAA API goes down, the system gracefully switches to the last recorded cache, preventing the dashboard from crashing while displaying an honest timestamp to the user.
+- **Stunning UI/UX:** A glassmorphism-inspired, dark-mode real-time dashboard built with vanilla JavaScript, Vite, and Chart.js.
 
-## Future Work
-- **Geomagnetic Storm Classification**: Expand the predictive targets to include the Kp-Index for direct classification of storm severity (G1 to G5).
-- **Multi-step Forecasting**: Extend the forecasting horizon from 1 hour to 24-72 hours using sequence-to-sequence LSTM or Transformer architectures.
-- **Solar Image Data**: Incorporate CNNs trained on live SDO (Solar Dynamics Observatory) imagery (e.g., AIA 193 Å) to predict CMEs before the solar wind reaches the L1 Lagrange point.
+## 🛠️ Tech Stack
+
+### Backend (AI & API)
+- **Framework:** FastAPI (Python)
+- **Real-time:** WebSockets (Uvicorn)
+- **Machine Learning:** XGBoost, Scikit-Learn, Pandas, NumPy
+- **Explainability:** SHAP
+
+### Frontend (Dashboard)
+- **Bundler:** Vite
+- **UI & Logic:** Vanilla JavaScript, HTML, CSS (Glassmorphism design)
+- **Data Visualization:** Chart.js
+
+## 📁 Project Structure
+
+\\	ext
+HeliosCast/
+│
+├── backend/
+│   ├── app/
+│   │   ├── api/
+│   │   │   └── predictions.py     # FastAPI REST & WebSocket routes
+│   │   ├── ml/
+│   │   │   └── predictor.py       # ML Inference & SHAP logic
+│   │   └── main.py                # FastAPI App & Static File Serving
+│   ├── data/                      # Historical CSVs & JSON Caches
+│   ├── models/                    # Trained ML Models (.pkl, .keras)
+│   ├── scripts/                   # Training & Pipeline Scripts
+│   └── requirements.txt           # Python Dependencies
+│
+├── frontend/
+│   ├── src/                       # Frontend JS, CSS, and Assets
+│   ├── index.html                 # Dashboard Entry Point
+│   ├── package.json               # Node Dependencies
+│   └── dist/                      # Production Build (Served by FastAPI)
+│
+└── .python-version                # Enforces Python 3.10 for Cloud Deployment
+\
+## 💻 Local Development Setup
+
+To run this project locally on your machine, follow these steps:
+
+### 1. Clone the repository
+\\ash
+git clone https://github.com/pushpaktiwarii/HeliosCast.git
+cd HeliosCast
+\
+### 2. Setup the Backend (FastAPI + AI)
+\\ash
+cd backend
+python -m venv venv
+# Activate virtual environment (Windows)
+.\venv\Scripts\activate
+# Install dependencies
+pip install -r requirements.txt
+# Run the server
+uvicorn app.main:app --reload --port 8000
+\
+### 3. Setup the Frontend (Vite)
+Open a new terminal window:
+\\ash
+cd frontend
+npm install
+# Run the development server
+npm run dev
+\The dashboard will be available at \http://localhost:5173\.
+
+## 🌐 Deployment (Monolithic)
+
+This project is configured to be deployed as a **single web service** on platforms like Render. The FastAPI backend is configured to automatically serve the statically built frontend.
+
+1. Build the frontend: \cd frontend && npm run build2. Deploy the root directory as a Python Web Service.
+3. Start command: \cd backend && uvicorn app.main:app --host 0.0.0.0 --port \
+
+---
+*Developed by [Pushpak Tiwari](https://github.com/pushpaktiwarii)*
