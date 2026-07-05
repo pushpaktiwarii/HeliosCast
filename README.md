@@ -76,3 +76,17 @@ This project is configured to be deployed as a single web service on platforms l
 1. Build the frontend: cd frontend && npm run build
 2. Deploy the root directory as a Python Web Service.
 3. Start command: cd backend && uvicorn app.main:app --host 0.0.0.0 --port $PORT
+## Contributing
+
+If you'd like to contribute, you're most welcome! Some ideas include:
+
+- Improve the ML models (XGBoost, LSTM, Transformers)
+- Improve forecasting accuracy and feature engineering
+- Integrate additional NASA/NOAA datasets
+- Add Solar Flare forecasting
+- Add Geomagnetic Storm prediction
+- Add Satellite Risk Analysis
+- Improve the UI/UX and dashboard
+- Add tests, optimize performance, and improve documentation
+
+Feel free to open an issue or submit a pull request. https://github.com/pushpaktiwarii/HeliosCast
