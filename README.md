@@ -12,6 +12,16 @@ HelioCast is an advanced, real-time Space Weather monitoring and prediction plat
 
 ---
 
+## 📡 Data Sources
+
+This project relies on authentic space weather data streams provided by the US Government:
+- **Live Real-time Data:** Fetched directly from the **NOAA Space Weather Prediction Center (SWPC)** APIs. The live data originates from the DSCOVR and ACE satellites positioned at the L1 Lagrange point.
+  - *Plasma API:* `https://services.swpc.noaa.gov/products/solar-wind/plasma-1-day.json`
+  - *Magnetic Field API:* `https://services.swpc.noaa.gov/products/solar-wind/mag-1-day.json`
+- **Training Data:** The AI models were trained on historical **OMNI** dataset records to accurately learn solar wind patterns and geomagnetic disturbances.
+
+---
+
 ## 🚀 Key Features
 
 - **Real-Time Data Streaming:** Uses WebSockets to stream live solar wind metrics (Speed, Density, Temperature, Bz) directly to the dashboard.
