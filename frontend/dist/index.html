@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <title>HelioCast | Space Weather Intelligence</title>
+    <script type="module" crossorigin src="/assets/index-DMyrJoiy.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-i1fsRZl9.css">
+  </head>
+  <body>
+    <div id="app">
+      <header class="glass-panel">
+        <div class="logo">
+          <span class="logo-icon">☀️</span>
+          <h1>HelioCast</h1>
+        </div>
+        <nav>
+          <ul id="main-nav">
+            <li id="nav-dashboard" class="active">Dashboard</li>
+            <li id="nav-analytics">Analytics</li>
+            <li id="nav-settings">Settings</li>
+          </ul>
+        </nav>
+        <div class="status-indicator">
+          <span class="dot live"></span> System Online
+        </div>
+      </header>
+
+      <main id="view-dashboard" class="dashboard view-section active">
+        
+        <!-- Live Data Header -->
+        <div class="section-title">
+          <h2>CURRENT CONDITIONS <span class="badge live-badge">LIVE NOAA FEED</span></h2>
+          <p>Real-time observations from space right now.</p>
+        </div>
+
+        <!-- Top Metrics Cards -->
+        <section class="metrics-grid">
+          <div class="metric-card panel" id="card-speed">
+            <div class="metric-header">Solar Wind Speed</div>
+            <div class="metric-value">-- <span class="unit">km/s</span></div>
+            <div class="metric-trend">LIVE OBSERVATION</div>
+          </div>
+          <div class="metric-card panel" id="card-density">
+            <div class="metric-header">Proton Density</div>
+            <div class="metric-value">-- <span class="unit">p/cm³</span></div>
+            <div class="metric-trend">LIVE OBSERVATION</div>
+          </div>
+          <div class="metric-card panel" id="card-temperature">
+            <div class="metric-header">Plasma Temp</div>
+            <div class="metric-value">-- <span class="unit">K</span></div>
+            <div class="metric-trend">LIVE OBSERVATION</div>
+          </div>
+          <div class="metric-card panel" id="card-bz">
+            <div class="metric-header">Magnetic Field (Bz)</div>
+            <div class="metric-value">-- <span class="unit">nT</span></div>
+            <div class="metric-trend">LIVE OBSERVATION</div>
+          </div>
+        </section>
+
+        <div class="main-content">
+          <!-- Chart Section -->
+          <section class="chart-section panel">
+            <header class="section-header">
+              <h2>PAST 24 HOURS (OBSERVED SPEED)</h2>
+              <div class="controls">
+                <button class="btn btn-sm">Real-time Data</button>
+              </div>
+            </header>
+            <div class="chart-container">
+              <canvas id="speedChart"></canvas>
+            </div>
+          </section>
+
+          <!-- Prediction Section -->
+          <aside class="prediction-section panel">
+            <header class="section-header">
+              <h2>FUTURE AI PREDICTION <span class="badge ai-badge">MACHINE LEARNING</span></h2>
+            </header>
+            <div class="forecast-content">
+              <div class="forecast-main">
+                <div class="forecast-label">AI Forecast (1 Hour Later)</div>
+                <div class="forecast-value" id="forecast-speed">-- km/s</div>
+                <div class="uncertainty-label" id="forecast-interval">± -- km/s (95% CI)</div>
+              </div>
+              
+              <div class="risk-assessment" id="risk-panel">
+                <span class="forecast-label">Risk Level</span>
+                <div class="risk-badge" id="risk-badge">Analyzing...</div>
+              </div>
+
+              <div class="feature-importance" id="shap-panel">
+                <h3>Top Drivers (SHAP)</h3>
+                <div id="shap-list">
+                  <!-- JS will populate this -->
+                  <div class="shap-item"><span class="shap-label">Pending</span><span class="shap-val">--</span></div>
+                </div>
+              </div>
+              
+              <button class="btn btn-primary" id="btn-refresh">Run Deep Analysis</button>
+            </div>
+          </aside>
+        </div>
+      </main>
+
+      <!-- Analytics View -->
+      <main id="view-analytics" class="dashboard view-section hidden">
+        <div class="section-title">
+          <h2>SYSTEM ANALYTICS <span class="badge ai-badge">MACHINE LEARNING</span></h2>
+          <p>Model architecture and performance metrics.</p>
+        </div>
+        
+        <div class="main-content" style="grid-template-columns: 1fr;">
+          <section class="panel" style="padding: 2rem;">
+            <h3 style="color: var(--primary-color); margin-bottom: 1rem; font-family: var(--font-mono); text-transform: uppercase;">Active Model Info</h3>
+            <ul style="list-style: none; display: flex; flex-direction: column; gap: 1rem;">
+              <li style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--panel-border); padding-bottom: 0.5rem;">
+                <span style="color: var(--text-secondary);">Algorithm</span>
+                <strong>Random Forest Regressor</strong>
+              </li>
+              <li style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--panel-border); padding-bottom: 0.5rem;">
+                <span style="color: var(--text-secondary);">Training Dataset</span>
+                <strong>OMNI2 (NASA/NOAA) ~80,000 records</strong>
+              </li>
+              <li style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--panel-border); padding-bottom: 0.5rem;">
+                <span style="color: var(--text-secondary);">Input Features</span>
+                <strong>Speed, Density, Temp, Bz (Lag t-1, t-2)</strong>
+              </li>
+              <li style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--panel-border); padding-bottom: 0.5rem;">
+                <span style="color: var(--text-secondary);">Root Mean Squared Error (RMSE)</span>
+                <strong style="color: var(--success-color);">17.89 km/s</strong>
+              </li>
+              <li style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--panel-border); padding-bottom: 0.5rem;">
+                <span style="color: var(--text-secondary);">Mean Absolute Error (MAE)</span>
+                <strong style="color: var(--success-color);">10.44 km/s</strong>
+              </li>
+              <li style="display: flex; justify-content: space-between; padding-bottom: 0.5rem;">
+                <span style="color: var(--text-secondary);">Interpretability Engine</span>
+                <strong>SHAP (TreeExplainer)</strong>
+              </li>
+            </ul>
+          </section>
+        </div>
+      </main>
+
+      <!-- Settings View -->
+      <main id="view-settings" class="dashboard view-section hidden">
+        <div class="section-title">
+          <h2>SYSTEM SETTINGS <span class="badge" style="background-color: var(--panel-border); color: var(--text-primary);">CONFIGURATION</span></h2>
+          <p>Adjust data fetching and display parameters.</p>
+        </div>
+        
+        <div class="main-content" style="grid-template-columns: 1fr;">
+          <section class="panel" style="padding: 2rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--panel-border); padding-bottom: 1rem;">
+              <div>
+                <h3 style="font-size: 1rem; color: var(--text-primary); margin-bottom: 0.25rem;">Live Data Auto-Refresh</h3>
+                <p style="font-size: 0.85rem; color: var(--text-secondary);">How often to fetch new telemetry from NOAA SWPC.</p>
+              </div>
+              <select id="setting-refresh" style="background: var(--panel-bg); color: var(--text-primary); border: 1px solid var(--panel-border); padding: 0.5rem; border-radius: 4px; font-family: var(--font-main);">
+                <option value="realtime">Real-time WebSocket</option>
+                <option value="60000">Every 1 Minute (Polling)</option>
+                <option value="300000">Every 5 Minutes (Polling)</option>
+                <option value="0">Off (Manual Only)</option>
+              </select>
+            </div>
+          </section>
+        </div>
+      </main>
+
+    </div>
+  </body>
+</html>
