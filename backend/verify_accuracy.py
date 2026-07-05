@@ -16,14 +16,12 @@ def test_prediction_accuracy():
         
     df = pd.read_csv(data_path)
     
-    # We will test the model on a small random continuous slice of the dataset
     start_idx = 100
     
-    # We need t, t-1, t-2 to predict t+1 (where intervals are 1 hour)
     t_minus_2 = df.iloc[start_idx]
     t_minus_1 = df.iloc[start_idx + 1]
     t_current = df.iloc[start_idx + 2]
-    t_future  = df.iloc[start_idx + 3] # This is exactly 1 step (1 hour) ahead
+    t_future  = df.iloc[start_idx + 3]
     
     print(f"Current Observation (Time T): Speed = {t_current['speed']:.2f} km/s")
     print(f"Past Observation (Time T-1): Speed = {t_minus_1['speed']:.2f} km/s")
@@ -46,7 +44,6 @@ def test_prediction_accuracy():
     error = abs(predicted_speed - actual_future_speed)
     print(f"-> Absolute Error: {error:.2f} km/s (Accuracy is within normal bounds)")
 
-
 def test_graph_data():
     print("\n--- TEST 2: Graph 24-Hour Timeline Verification ---")
     
@@ -65,7 +62,6 @@ def test_graph_data():
     for i in range(len(history)-2, len(history)):
         print(f"Point {i+1}: {history[i]['timestamp']} (Speed: {history[i]['speed']})")
         
-    # Check interval
     t1 = datetime.fromisoformat(history[-1]['timestamp'].replace('Z', '+00:00'))
     t2 = datetime.fromisoformat(history[-2]['timestamp'].replace('Z', '+00:00'))
     diff = (t1 - t2).total_seconds() / 3600

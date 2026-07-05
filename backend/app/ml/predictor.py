@@ -42,30 +42,23 @@ class SolarWindPredictor:
             'bz_t-1': bz_t1
         }], columns=features_list)
         
-        # 1. Main Prediction via Random Forest (performed best)
         predicted_speed = float(self.rf_model.predict(features)[0])
         
-        # 2. Uncertainty / Confidence Interval via Random Forest standard deviation
         lower_bound = predicted_speed
         upper_bound = predicted_speed
         
-        # Get predictions from all trees in the random forest
         tree_preds = [tree.predict(features.values)[0] for tree in self.rf_model.estimators_]
         std_dev = np.std(tree_preds)
-        # 95% confidence interval is approx +- 1.96 * std_dev
         margin = 1.96 * std_dev
         lower_bound = round(predicted_speed - margin, 2)
         upper_bound = round(predicted_speed + margin, 2)
             
-        # 3. Explainable AI via SHAP
         feature_importance = {}
         if self.shap_explainer:
             shap_values = self.shap_explainer.shap_values(features)[0]
-            # Convert to dictionary {feature_name: shap_value}
             for i, feat in enumerate(features_list):
                 feature_importance[feat] = round(float(shap_values[i]), 4)
         
-        # Risk assessment logic based on speed (km/s)
         if predicted_speed < 400:
             risk = "Low"
         elif predicted_speed < 500:

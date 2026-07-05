@@ -26,7 +26,6 @@ def train():
     X = df[features]
     y = df['target_speed']
     
-    # Chronological split for time series
     split_idx = int(len(df) * 0.8)
     X_train, X_test = X.iloc[:split_idx], X.iloc[split_idx:]
     y_train, y_test = y.iloc[:split_idx], y.iloc[split_idx:]
@@ -36,7 +35,6 @@ def train():
     
     results = {}
     
-    # --- 1. Random Forest ---
     print(f"\nTraining Random Forest on {len(X_train)} records...")
     rf_model = RandomForestRegressor(n_estimators=50, max_depth=15, min_samples_split=10, random_state=42, n_jobs=-1)
     rf_model.fit(X_train, y_train)
@@ -47,7 +45,6 @@ def train():
     }
     joblib.dump(rf_model, os.path.join(models_dir, 'rf_model.pkl'))
     
-    # --- 2. XGBoost ---
     print(f"Training XGBoost on {len(X_train)} records...")
     xgb_model = xgb.XGBRegressor(n_estimators=100, learning_rate=0.1, max_depth=6, random_state=42, n_jobs=-1)
     xgb_model.fit(X_train, y_train)
@@ -58,9 +55,7 @@ def train():
     }
     joblib.dump(xgb_model, os.path.join(models_dir, 'xgb_model.pkl'))
     
-    # --- 3. LSTM ---
     print(f"Training LSTM on {len(X_train)} records...")
-    # Reshape for LSTM: [samples, time steps, features]
     X_train_lstm = X_train.values.reshape((X_train.shape[0], 1, X_train.shape[1]))
     X_test_lstm = X_test.values.reshape((X_test.shape[0], 1, X_test.shape[1]))
     
@@ -70,7 +65,6 @@ def train():
         Dense(1)
     ])
     lstm_model.compile(optimizer='adam', loss='mse')
-    # Train for a few epochs for demonstration
     lstm_model.fit(X_train_lstm, y_train, epochs=5, batch_size=64, validation_split=0.1, verbose=0)
     lstm_pred = lstm_model.predict(X_test_lstm, verbose=0).flatten()
     results['LSTM'] = {
@@ -79,17 +73,12 @@ def train():
     }
     lstm_model.save(os.path.join(models_dir, 'lstm_model.keras'))
     
-    # --- Print Comparison ---
     print("\nModel Comparison (Real Data):")
     for name, metrics in results.items():
         print(f"{name}: RMSE={metrics['RMSE']:.2f} km/s, MAE={metrics['MAE']:.2f} km/s")
         
-    # --- Explainable AI (SHAP) ---
     print("\nGenerating SHAP explainer for Random Forest...")
-    # Use Random Forest for SHAP to avoid XGBoost base_score string casting bug
-    # RF also had the lowest RMSE!
     explainer = shap.TreeExplainer(rf_model)
-    # Save the explainer (joblib can serialize TreeExplainer)
     joblib.dump(explainer, os.path.join(models_dir, 'shap_explainer.pkl'))
     print("SHAP explainer saved.")
     
