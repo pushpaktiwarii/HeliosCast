@@ -39,14 +39,12 @@ def fetch_live_noaa_data():
     global NOAA_CACHE
     now = time.time()
     
-    # Enforce 60-second cooldown on both success and failure
     if now - NOAA_CACHE["timestamp"] < 60:
         if NOAA_CACHE["data"]:
             return NOAA_CACHE["data"]
         else:
             raise Exception("NOAA API is on a 60-second cooldown due to a previous failure.")
             
-    # Mark attempt time to trigger cooldown
     NOAA_CACHE["timestamp"] = now
 
     plasma_url = "https://services.swpc.noaa.gov/products/solar-wind/plasma-1-day.json"
@@ -81,7 +79,6 @@ def fetch_live_noaa_data():
         
     history = []
     for _, row in history_df.iterrows():
-        # Handle index vs column if we reset index or not
         time_tag = row['time_tag'] if 'time_tag' in row else row.name
         timestamp_str = time_tag.isoformat()
         if not timestamp_str.endswith('Z') and '+' not in timestamp_str:
@@ -94,7 +91,6 @@ def fetch_live_noaa_data():
             "bz": round(row['bz_gsm'], 2)
         })
         
-    # Get the absolute latest 1-minute record for "current" conditions
     latest_raw = merged.iloc[-1]
     latest_time = latest_raw.name if 'time_tag' not in latest_raw else latest_raw['time_tag']
     latest_timestamp_str = latest_time.isoformat()
@@ -134,7 +130,6 @@ async def get_current_conditions_api():
             "is_cached": False
         }
     except Exception as e:
-        # Fallback to recorded 24h cache file
         cache_path = os.path.join(os.path.dirname(__file__), '..', '..', 'data', 'latest_cache.json')
         if os.path.exists(cache_path):
             with open(cache_path, 'r') as f:
@@ -147,7 +142,6 @@ async def get_current_conditions_api():
         raise HTTPException(status_code=503, detail=f"NOAA API is down and no cache exists: {str(e)}")
 
 async def get_current_conditions():
-    # Used by websocket
     try:
         history, current = fetch_live_noaa_data()
         return {
@@ -156,7 +150,6 @@ async def get_current_conditions():
             "is_cached": False
         }
     except Exception as e:
-        # Fallback to recorded 24h cache file
         cache_path = os.path.join(os.path.dirname(__file__), '..', '..', 'data', 'latest_cache.json')
         if os.path.exists(cache_path):
             with open(cache_path, 'r') as f:
@@ -179,8 +172,8 @@ async def websocket_endpoint(websocket: WebSocket):
         while True:
             data = await get_current_conditions()
             await websocket.send_json(data)
-            await asyncio.sleep(2)  # Emit real-time data every 2 seconds
+            await asyncio.sleep(2) 
     except WebSocketDisconnect:
         pass
     except Exception as e:
-        pass # Handle cases where socket closes forcefully (e.g. socket.send() exception)
+        pass

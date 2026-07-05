@@ -3,7 +3,6 @@ import Chart from 'chart.js/auto';
 
 const protocol = window.location.protocol === 'https:' ? 'https' : 'http';
 const wsProtocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
-// Use the current host, defaulting to localhost:8000 for local dev if opened directly as file
 const host = window.location.host || 'localhost:8000';
 
 const API_URL = `${protocol}://${host}/api`;
@@ -14,7 +13,6 @@ let wsSocket = null;
 let useRealtime = true;
 let reconnectTimeout = null;
 
-// Initialize the app
 async function init() {
   await fetchCurrentConditions();
   setupEventListeners();
@@ -82,7 +80,7 @@ function connectWebSocket() {
     renderChart(data.history);
     
     if (data.history && data.history.length >= 2) {
-      await fetchPrediction(data.history, data.current, true); // Auto prediction silently
+      await fetchPrediction(data.history, data.current, true);
     }
   };
   
@@ -148,7 +146,6 @@ function updateMetrics(current) {
 }
 
 function updatePredictionUI(result, isAuto = false) {
-  // Update Forecast Value with Animation
   const speedEl = document.getElementById('forecast-speed');
   const target = result.predicted_speed;
   const duration = isAuto ? 0 : 1000;
@@ -174,24 +171,20 @@ function updatePredictionUI(result, isAuto = false) {
     requestAnimationFrame(updateNumber);
   }
   
-  // Update Confidence Interval
   if(result.confidence_interval) {
     const spread = (result.confidence_interval.upper_bound - result.predicted_speed).toFixed(1);
     document.getElementById('forecast-interval').innerText = `± ${spread} km/s (95% CI)`;
   }
   
-  // Update Risk Badge
   const badge = document.getElementById('risk-badge');
   badge.className = `risk-badge ${result.risk_level.toLowerCase()}`;
   badge.innerText = result.risk_level;
   
-  // Update SHAP Feature Importance
   const shapList = document.getElementById('shap-list');
   if(result.feature_importance) {
-    // Sort by absolute importance value
     const sortedFeatures = Object.entries(result.feature_importance)
       .sort((a, b) => Math.abs(b[1]) - Math.abs(a[1]))
-      .slice(0, 3); // top 3
+      .slice(0, 3);
       
     shapList.innerHTML = sortedFeatures.map(([feat, val]) => {
       const isPos = val > 0;
@@ -210,11 +203,10 @@ function renderChart(history) {
   });
   const data = history.map(item => item.speed);
 
-  // If chart exists, update it smoothly
   if (speedChartInstance) {
     speedChartInstance.data.labels = labels;
     speedChartInstance.data.datasets[0].data = data;
-    speedChartInstance.update('none'); // no animation for smooth update
+    speedChartInstance.update('none');
     return;
   }
 
@@ -272,7 +264,7 @@ function renderChart(history) {
         mode: 'index',
       },
       animation: {
-        duration: 0 // Disable initial animation for snappiness
+        duration: 0
       }
     }
   });
@@ -287,23 +279,17 @@ function setupEventListeners() {
     }
   });
 
-  // Tab Navigation Logic
   const tabs = ['dashboard', 'analytics', 'settings'];
   tabs.forEach(tab => {
     document.getElementById(`nav-${tab}`).addEventListener('click', (e) => {
-      // Deactivate all nav items
       tabs.forEach(t => document.getElementById(`nav-${t}`).classList.remove('active'));
-      // Hide all views
       tabs.forEach(t => document.getElementById(`view-${t}`).classList.add('hidden'));
       
-      // Activate clicked nav item
       e.target.classList.add('active');
-      // Show corresponding view
       document.getElementById(`view-${tab}`).classList.remove('hidden');
     });
   });
 
-  // Settings: Auto-Refresh Interval
   const refreshSelect = document.getElementById('setting-refresh');
   refreshSelect.addEventListener('change', (e) => {
     const val = e.target.value;
@@ -323,8 +309,7 @@ function setupEventListeners() {
   });
 }
 
-// Boot
 document.addEventListener('DOMContentLoaded', () => {
   init();
-  connectWebSocket(); // Start real-time sync by default
+  connectWebSocket();
 });

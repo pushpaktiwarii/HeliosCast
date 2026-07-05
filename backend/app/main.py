@@ -11,10 +11,9 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# Configure CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], # For development
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -22,7 +21,6 @@ app.add_middleware(
 
 app.include_router(predictions_router, prefix="/api", tags=["Predictions"])
 
-# Serve frontend static files
 frontend_dist = os.path.join(os.path.dirname(__file__), "..", "..", "frontend", "dist")
 
 if os.path.exists(frontend_dist):
