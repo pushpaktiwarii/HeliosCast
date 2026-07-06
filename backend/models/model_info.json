@@ -1,0 +1,1 @@
+{"algorithm": "Random Forest Regressor", "dataset": "OMNI2 (NASA/NOAA) 99997 records", "features": ["speed", "density", "temperature", "bz", "speed_t-1", "speed_t-2", "density_t-1", "bz_t-1"], "rmse": 17.89, "mae": 10.44, "interpretability": "SHAP (TreeExplainer)"}

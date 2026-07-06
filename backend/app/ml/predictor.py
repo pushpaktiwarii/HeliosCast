@@ -8,19 +8,15 @@ class SolarWindPredictor:
         current_dir = os.path.dirname(os.path.abspath(__file__))
         models_dir = os.path.join(current_dir, '..', '..', 'models')
         
-        self.xgb_path = os.path.join(models_dir, 'xgb_model.pkl')
         self.rf_path = os.path.join(models_dir, 'rf_model.pkl')
         self.shap_path = os.path.join(models_dir, 'shap_explainer.pkl')
         
-        self.xgb_model = None
         self.rf_model = None
         self.shap_explainer = None
         
         self.load_models()
         
     def load_models(self):
-        if os.path.exists(self.xgb_path):
-            self.xgb_model = joblib.load(self.xgb_path)
         if os.path.exists(self.rf_path):
             self.rf_model = joblib.load(self.rf_path)
         if os.path.exists(self.shap_path):

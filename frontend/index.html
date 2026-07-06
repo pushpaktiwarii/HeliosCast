@@ -30,8 +30,8 @@
         
         <!-- Live Data Header -->
         <div class="section-title">
-          <h2>CURRENT CONDITIONS <span class="badge live-badge">LIVE NOAA FEED</span></h2>
-          <p>Real-time observations from space right now.</p>
+          <h2>CURRENT CONDITIONS <span class="badge live-badge">LATEST NOAA FEED</span></h2>
+          <p>Latest telemetry from space (~15 min delay).</p>
         </div>
 
         <!-- Top Metrics Cards -->
@@ -39,22 +39,22 @@
           <div class="metric-card panel" id="card-speed">
             <div class="metric-header">Solar Wind Speed</div>
             <div class="metric-value">-- <span class="unit">km/s</span></div>
-            <div class="metric-trend">LIVE OBSERVATION</div>
+            <div class="metric-trend">LATEST OBSERVATION</div>
           </div>
           <div class="metric-card panel" id="card-density">
             <div class="metric-header">Proton Density</div>
             <div class="metric-value">-- <span class="unit">p/cm³</span></div>
-            <div class="metric-trend">LIVE OBSERVATION</div>
+            <div class="metric-trend">LATEST OBSERVATION</div>
           </div>
           <div class="metric-card panel" id="card-temperature">
             <div class="metric-header">Plasma Temp</div>
             <div class="metric-value">-- <span class="unit">K</span></div>
-            <div class="metric-trend">LIVE OBSERVATION</div>
+            <div class="metric-trend">LATEST OBSERVATION</div>
           </div>
           <div class="metric-card panel" id="card-bz">
             <div class="metric-header">Magnetic Field (Bz)</div>
             <div class="metric-value">-- <span class="unit">nT</span></div>
-            <div class="metric-trend">LIVE OBSERVATION</div>
+            <div class="metric-trend">LATEST OBSERVATION</div>
           </div>
         </section>
 
@@ -64,7 +64,7 @@
             <header class="section-header">
               <h2>PAST 24 HOURS (OBSERVED SPEED)</h2>
               <div class="controls">
-                <button class="btn btn-sm">Real-time Data</button>
+                <button class="btn btn-sm" id="chart-status-btn">Latest Telemetry</button>
               </div>
             </header>
             <div class="chart-container">
@@ -116,27 +116,27 @@
             <ul style="list-style: none; display: flex; flex-direction: column; gap: 1rem;">
               <li style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--panel-border); padding-bottom: 0.5rem;">
                 <span style="color: var(--text-secondary);">Algorithm</span>
-                <strong>Random Forest Regressor</strong>
+                <strong id="analytics-algorithm">Random Forest Regressor</strong>
               </li>
               <li style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--panel-border); padding-bottom: 0.5rem;">
                 <span style="color: var(--text-secondary);">Training Dataset</span>
-                <strong>OMNI2 (NASA/NOAA) ~80,000 records</strong>
+                <strong id="analytics-dataset">OMNI2 (NASA/NOAA)</strong>
               </li>
               <li style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--panel-border); padding-bottom: 0.5rem;">
                 <span style="color: var(--text-secondary);">Input Features</span>
-                <strong>Speed, Density, Temp, Bz (Lag t-1, t-2)</strong>
+                <strong id="analytics-features">Speed, Density, Temp, Bz (Lag t-1, t-2)</strong>
               </li>
               <li style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--panel-border); padding-bottom: 0.5rem;">
                 <span style="color: var(--text-secondary);">Root Mean Squared Error (RMSE)</span>
-                <strong style="color: var(--success-color);">17.89 km/s</strong>
+                <strong style="color: var(--success-color);" id="analytics-rmse">17.89 km/s</strong>
               </li>
               <li style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--panel-border); padding-bottom: 0.5rem;">
                 <span style="color: var(--text-secondary);">Mean Absolute Error (MAE)</span>
-                <strong style="color: var(--success-color);">10.44 km/s</strong>
+                <strong style="color: var(--success-color);" id="analytics-mae">10.44 km/s</strong>
               </li>
               <li style="display: flex; justify-content: space-between; padding-bottom: 0.5rem;">
                 <span style="color: var(--text-secondary);">Interpretability Engine</span>
-                <strong>SHAP (TreeExplainer)</strong>
+                <strong id="analytics-interpretability">SHAP (TreeExplainer)</strong>
               </li>
             </ul>
           </section>
@@ -154,11 +154,11 @@
           <section class="panel" style="padding: 2rem;">
             <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--panel-border); padding-bottom: 1rem;">
               <div>
-                <h3 style="font-size: 1rem; color: var(--text-primary); margin-bottom: 0.25rem;">Live Data Auto-Refresh</h3>
-                <p style="font-size: 0.85rem; color: var(--text-secondary);">How often to fetch new telemetry from NOAA SWPC.</p>
+                <h3 style="font-size: 1rem; color: var(--text-primary); margin-bottom: 0.25rem;">Data Auto-Refresh</h3>
+                <p style="font-size: 0.85rem; color: var(--text-secondary);">How often to fetch telemetry from NOAA SWPC.</p>
               </div>
               <select id="setting-refresh" style="background: var(--panel-bg); color: var(--text-primary); border: 1px solid var(--panel-border); padding: 0.5rem; border-radius: 4px; font-family: var(--font-main);">
-                <option value="realtime">Real-time WebSocket</option>
+                <option value="30000">Every 30 Seconds (Polling)</option>
                 <option value="60000">Every 1 Minute (Polling)</option>
                 <option value="300000">Every 5 Minutes (Polling)</option>
                 <option value="0">Off (Manual Only)</option>

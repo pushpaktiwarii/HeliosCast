@@ -1,7 +1,6 @@
-from fastapi import APIRouter, HTTPException, WebSocket, WebSocketDisconnect
+from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from typing import List, Dict
-import random
 import os
 import pandas as pd
 import requests
@@ -39,25 +38,30 @@ def fetch_live_noaa_data():
     global NOAA_CACHE
     now = time.time()
     
-    if now - NOAA_CACHE["timestamp"] < 60:
+    if now - NOAA_CACHE["timestamp"] < 30:
         if NOAA_CACHE["data"]:
             return NOAA_CACHE["data"]
         else:
-            raise Exception("NOAA API is on a 60-second cooldown due to a previous failure.")
+            raise Exception("NOAA API is on a 30-second cooldown due to a previous failure.")
             
     NOAA_CACHE["timestamp"] = now
 
-    plasma_url = "https://services.swpc.noaa.gov/products/solar-wind/plasma-1-day.json"
-    mag_url = "https://services.swpc.noaa.gov/products/solar-wind/mag-1-day.json"
+    plasma_url = "https://services.swpc.noaa.gov/json/rtsw/rtsw_wind_1m.json"
+    mag_url = "https://services.swpc.noaa.gov/json/rtsw/rtsw_mag_1m.json"
     
     plasma_data = requests.get(plasma_url, timeout=5).json()
     mag_data = requests.get(mag_url, timeout=5).json()
     
-    plasma_df = pd.DataFrame(plasma_data[1:], columns=plasma_data[0])
+    plasma_df = pd.DataFrame(plasma_data)
     plasma_df['time_tag'] = pd.to_datetime(plasma_df['time_tag'])
+    plasma_df.rename(columns={
+        'proton_density': 'density',
+        'proton_speed': 'speed',
+        'proton_temperature': 'temperature'
+    }, inplace=True)
     plasma_df[['density', 'speed', 'temperature']] = plasma_df[['density', 'speed', 'temperature']].apply(pd.to_numeric)
     
-    mag_df = pd.DataFrame(mag_data[1:], columns=mag_data[0])
+    mag_df = pd.DataFrame(mag_data)
     mag_df['time_tag'] = pd.to_datetime(mag_df['time_tag'])
     mag_df[['bz_gsm']] = mag_df[['bz_gsm']].apply(pd.to_numeric)
     
@@ -69,7 +73,7 @@ def fetch_live_noaa_data():
         
     if len(merged) > 24:
         merged.set_index('time_tag', inplace=True)
-        hourly = merged.resample('1h').mean().dropna()
+        hourly = merged.resample('1h').mean(numeric_only=True).dropna()
         if len(hourly) >= 24:
             history_df = hourly.tail(24).reset_index()
         else:
@@ -85,10 +89,10 @@ def fetch_live_noaa_data():
             timestamp_str += 'Z'
         history.append({
             "timestamp": timestamp_str,
-            "speed": round(row['speed'], 2),
-            "density": round(row['density'], 2),
-            "temperature": round(row['temperature'], 2),
-            "bz": round(row['bz_gsm'], 2)
+            "speed": float(round(row['speed'], 2)),
+            "density": float(round(row['density'], 2)),
+            "temperature": float(round(row['temperature'], 2)),
+            "bz": float(round(row['bz_gsm'], 2))
         })
         
     latest_raw = merged.iloc[-1]
@@ -99,10 +103,10 @@ def fetch_live_noaa_data():
         
     current_data = {
         "timestamp": latest_timestamp_str,
-        "speed": round(latest_raw['speed'], 2),
-        "density": round(latest_raw['density'], 2),
-        "temperature": round(latest_raw['temperature'], 2),
-        "bz": round(latest_raw['bz_gsm'], 2)
+        "speed": float(round(latest_raw['speed'], 2)),
+        "density": float(round(latest_raw['density'], 2)),
+        "temperature": float(round(latest_raw['temperature'], 2)),
+        "bz": float(round(latest_raw['bz_gsm'], 2))
     }
         
     NOAA_CACHE["data"] = (history, current_data)
@@ -123,7 +127,7 @@ import json
 @router.get("/current-conditions")
 async def get_current_conditions_api():
     try:
-        history, current = fetch_live_noaa_data()
+        history, current = await asyncio.to_thread(fetch_live_noaa_data)
         return {
             "current": current,
             "history": history,
@@ -141,39 +145,24 @@ async def get_current_conditions_api():
             }
         raise HTTPException(status_code=503, detail=f"NOAA API is down and no cache exists: {str(e)}")
 
-async def get_current_conditions():
+@router.get("/model-info")
+async def get_model_info():
     try:
-        history, current = fetch_live_noaa_data()
+        models_dir = os.path.join(os.path.dirname(__file__), '..', '..', 'models')
+        info_path = os.path.join(models_dir, 'model_info.json')
+        
+        if os.path.exists(info_path):
+            with open(info_path, 'r') as f:
+                return json.load(f)
+        
+        # Fallback default info if file doesn't exist yet
         return {
-            "current": current,
-            "history": history,
-            "is_cached": False
+            "algorithm": "Random Forest Regressor",
+            "dataset": "OMNI2 (NASA/NOAA)",
+            "features": ['speed', 'density', 'temperature', 'bz', 'speed_t-1', 'speed_t-2', 'density_t-1', 'bz_t-1'],
+            "rmse": 17.89,
+            "mae": 10.44,
+            "interpretability": "SHAP (TreeExplainer)"
         }
     except Exception as e:
-        cache_path = os.path.join(os.path.dirname(__file__), '..', '..', 'data', 'latest_cache.json')
-        if os.path.exists(cache_path):
-            with open(cache_path, 'r') as f:
-                data = json.load(f)
-            return {
-                "current": data["current"],
-                "history": data["history"],
-                "is_cached": True
-            }
-        return {
-            "error": "NOAA API Offline",
-            "current": {},
-            "history": []
-        }
-
-@router.websocket("/ws/current-conditions")
-async def websocket_endpoint(websocket: WebSocket):
-    await websocket.accept()
-    try:
-        while True:
-            data = await get_current_conditions()
-            await websocket.send_json(data)
-            await asyncio.sleep(2) 
-    except WebSocketDisconnect:
-        pass
-    except Exception as e:
-        pass
+        raise HTTPException(status_code=500, detail=str(e))

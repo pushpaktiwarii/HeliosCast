@@ -5,10 +5,6 @@ import joblib
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_squared_error, mean_absolute_error
-import xgboost as xgb
-import tensorflow as tf
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense, LSTM
 import shap
 
 def train():
@@ -43,35 +39,22 @@ def train():
         'RMSE': np.sqrt(mean_squared_error(y_test, rf_pred)),
         'MAE': mean_absolute_error(y_test, rf_pred)
     }
+    
+    # Save Model Information (Metrics) for Frontend
+    model_info = {
+        "algorithm": "Random Forest Regressor",
+        "dataset": f"OMNI2 (NASA/NOAA) {len(df)} records",
+        "features": features,
+        "rmse": round(results['Random Forest']['RMSE'], 2),
+        "mae": round(results['Random Forest']['MAE'], 2),
+        "interpretability": "SHAP (TreeExplainer)"
+    }
+    import json
+    info_path = os.path.join(models_dir, 'model_info.json')
+    with open(info_path, 'w') as f:
+        json.dump(model_info, f)
+        
     joblib.dump(rf_model, os.path.join(models_dir, 'rf_model.pkl'))
-    
-    print(f"Training XGBoost on {len(X_train)} records...")
-    xgb_model = xgb.XGBRegressor(n_estimators=100, learning_rate=0.1, max_depth=6, random_state=42, n_jobs=-1)
-    xgb_model.fit(X_train, y_train)
-    xgb_pred = xgb_model.predict(X_test)
-    results['XGBoost'] = {
-        'RMSE': np.sqrt(mean_squared_error(y_test, xgb_pred)),
-        'MAE': mean_absolute_error(y_test, xgb_pred)
-    }
-    joblib.dump(xgb_model, os.path.join(models_dir, 'xgb_model.pkl'))
-    
-    print(f"Training LSTM on {len(X_train)} records...")
-    X_train_lstm = X_train.values.reshape((X_train.shape[0], 1, X_train.shape[1]))
-    X_test_lstm = X_test.values.reshape((X_test.shape[0], 1, X_test.shape[1]))
-    
-    lstm_model = Sequential([
-        LSTM(32, activation='relu', input_shape=(1, len(features))),
-        Dense(16, activation='relu'),
-        Dense(1)
-    ])
-    lstm_model.compile(optimizer='adam', loss='mse')
-    lstm_model.fit(X_train_lstm, y_train, epochs=5, batch_size=64, validation_split=0.1, verbose=0)
-    lstm_pred = lstm_model.predict(X_test_lstm, verbose=0).flatten()
-    results['LSTM'] = {
-        'RMSE': np.sqrt(mean_squared_error(y_test, lstm_pred)),
-        'MAE': mean_absolute_error(y_test, lstm_pred)
-    }
-    lstm_model.save(os.path.join(models_dir, 'lstm_model.keras'))
     
     print("\nModel Comparison (Real Data):")
     for name, metrics in results.items():

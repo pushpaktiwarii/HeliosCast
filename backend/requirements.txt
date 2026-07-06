@@ -4,8 +4,6 @@ scikit-learn
 pandas
 numpy
 joblib
-xgboost
-tensorflow
 shap
 requests
 websockets

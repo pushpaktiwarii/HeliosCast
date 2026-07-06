@@ -2,20 +2,33 @@ import './style.css'
 import Chart from 'chart.js/auto';
 
 const protocol = window.location.protocol === 'https:' ? 'https' : 'http';
-const wsProtocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
 const host = window.location.host || 'localhost:8000';
 
 const API_URL = `${protocol}://${host}/api`;
-const WS_URL = `${wsProtocol}://${host}/api/ws/current-conditions`;
 let speedChartInstance = null;
 let currentDataState = null;
-let wsSocket = null;
-let useRealtime = true;
-let reconnectTimeout = null;
 
 async function init() {
+  await fetchModelInfo();
   await fetchCurrentConditions();
   setupEventListeners();
+}
+
+async function fetchModelInfo() {
+  try {
+    const response = await fetch(`${API_URL}/model-info`);
+    if (response.ok) {
+      const info = await response.json();
+      document.getElementById('analytics-algorithm').innerText = info.algorithm;
+      document.getElementById('analytics-dataset').innerText = info.dataset;
+      document.getElementById('analytics-features').innerText = info.features.join(', ');
+      document.getElementById('analytics-rmse').innerText = `${info.rmse} km/s`;
+      document.getElementById('analytics-mae').innerText = `${info.mae} km/s`;
+      document.getElementById('analytics-interpretability').innerText = info.interpretability;
+    }
+  } catch (error) {
+    console.error("Error fetching model info:", error);
+  }
 }
 
 async function fetchCurrentConditions(isAuto = false) {
@@ -24,19 +37,66 @@ async function fetchCurrentConditions(isAuto = false) {
     if (!response.ok) throw new Error('Network response was not ok');
     
     const data = await response.json();
+    
+    // Check if new data actually arrived
+    if (isAuto && currentDataState && currentDataState.current && data.current) {
+      if (currentDataState.current.timestamp === data.current.timestamp) {
+        return; // No new data, skip UI update
+      }
+    }
+    
     currentDataState = data;
     
     if (data.is_cached && data.current && data.current.timestamp) {
-      const cacheDate = new Date(data.current.timestamp).toLocaleDateString();
+      const cacheDate = new Date(data.current.timestamp).toLocaleString();
       document.querySelector('.status-indicator').innerHTML = `<span class="dot" style="background: orange;"></span> Showing Recorded Data from ${cacheDate} (NOAA Server Down)`;
     } else if (data.is_cached) {
       document.querySelector('.status-indicator').innerHTML = '<span class="dot" style="background: orange;"></span> Showing Recorded Data (NOAA Server Down)';
     } else {
-      document.querySelector('.status-indicator').innerHTML = '<span class="dot live"></span> System Online (Real-time)';
+      document.querySelector('.status-indicator').innerHTML = '<span class="dot live"></span> System Online (Latest Feed)';
+    }
+
+    const badge = document.querySelector('.live-badge');
+    const trends = document.querySelectorAll('.metric-trend');
+    const chartBtn = document.getElementById('chart-status-btn');
+    
+    if (data.is_cached) {
+      if (badge) {
+        badge.innerText = 'CACHED FEED (OFFLINE)';
+        badge.style.background = 'orange';
+        badge.style.color = '#000';
+      }
+      if (chartBtn) {
+        chartBtn.innerText = 'Cached Data (Offline)';
+        chartBtn.style.color = 'orange';
+        chartBtn.style.borderColor = 'orange';
+      }
+      trends.forEach(t => {
+        t.innerText = 'RECORDED OBSERVATION';
+        t.style.color = 'orange';
+      });
+    } else {
+      if (badge) {
+        badge.innerText = 'LATEST NOAA FEED';
+        badge.style.background = 'var(--success-color)';
+        badge.style.color = 'var(--bg-color)';
+      }
+      if (chartBtn) {
+        chartBtn.innerText = 'Latest Telemetry';
+        chartBtn.style.color = '';
+        chartBtn.style.borderColor = '';
+      }
+      trends.forEach(t => {
+        t.innerText = 'LATEST OBSERVATION';
+        t.style.color = 'var(--success-color)';
+      });
     }
     
     updateMetrics(data.current);
-    renderChart(data.history);
+    
+    // Append the exact current point to history so the chart isn't stuck at the last hour boundary
+    const chartData = [...data.history, data.current];
+    renderChart(chartData);
     
     if (data.history.length >= 2) {
       await fetchPrediction(data.history, data.current, isAuto);
@@ -44,53 +104,6 @@ async function fetchCurrentConditions(isAuto = false) {
   } catch (error) {
     console.error("Error fetching current conditions:", error);
   }
-}
-
-function connectWebSocket() {
-  if (wsSocket) {
-    wsSocket.close();
-  }
-  useRealtime = true;
-  wsSocket = new WebSocket(WS_URL);
-  
-  wsSocket.onopen = () => {
-    console.log("WebSocket connected");
-    document.querySelector('.status-indicator').innerHTML = '<span class="dot live"></span> System Online (Real-time)';
-  };
-  
-  wsSocket.onmessage = async (event) => {
-    const data = JSON.parse(event.data);
-    
-    if (data.error) {
-      document.querySelector('.status-indicator').innerHTML = '<span class="dot" style="background: red;"></span> NOAA API Offline';
-      return;
-    }
-    
-    if (data.is_cached && data.current && data.current.timestamp) {
-      const cacheDate = new Date(data.current.timestamp).toLocaleDateString();
-      document.querySelector('.status-indicator').innerHTML = `<span class="dot" style="background: orange;"></span> Showing Recorded Data from ${cacheDate} (NOAA Server Down)`;
-    } else if (data.is_cached) {
-      document.querySelector('.status-indicator').innerHTML = '<span class="dot" style="background: orange;"></span> Showing Recorded Data (NOAA Server Down)';
-    } else {
-      document.querySelector('.status-indicator').innerHTML = '<span class="dot live"></span> System Online (Real-time)';
-    }
-    currentDataState = data;
-    
-    updateMetrics(data.current);
-    renderChart(data.history);
-    
-    if (data.history && data.history.length >= 2) {
-      await fetchPrediction(data.history, data.current, true);
-    }
-  };
-  
-  wsSocket.onclose = () => {
-    console.log("WebSocket disconnected, retrying in 5s...");
-    document.querySelector('.status-indicator').innerHTML = '<span class="dot" style="background: red;"></span> System Offline';
-    if (useRealtime) {
-      reconnectTimeout = setTimeout(connectWebSocket, 5000);
-    }
-  };
 }
 
 async function fetchPrediction(history, currentData, isAuto = false) {
@@ -197,9 +210,10 @@ function updatePredictionUI(result, isAuto = false) {
 
 function renderChart(history) {
   const ctx = document.getElementById('speedChart').getContext('2d');
-  const labels = history.map(item => {
+  const labels = history.map((item, index) => {
     const d = new Date(item.timestamp);
-    return `${String(d.getHours()).padStart(2, '0')}:00`;
+    const timeStr = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    return index === history.length - 1 ? `${timeStr} (Latest)` : timeStr;
   });
   const data = history.map(item => item.speed);
 
@@ -295,21 +309,13 @@ function setupEventListeners() {
     const val = e.target.value;
     if (refreshIntervalId) clearInterval(refreshIntervalId);
     
-    if (val === 'realtime') {
-      connectWebSocket();
-    } else {
-      useRealtime = false;
-      if (wsSocket) wsSocket.close();
-      clearTimeout(reconnectTimeout);
-      
-      if (parseInt(val) > 0) {
-        refreshIntervalId = setInterval(() => fetchCurrentConditions(true), parseInt(val));
-      }
+    if (parseInt(val) > 0) {
+      refreshIntervalId = setInterval(() => fetchCurrentConditions(true), parseInt(val));
     }
   });
 }
 
 document.addEventListener('DOMContentLoaded', () => {
   init();
-  connectWebSocket();
+  refreshIntervalId = setInterval(() => fetchCurrentConditions(true), 30000);
 });
