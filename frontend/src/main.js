@@ -33,7 +33,7 @@ async function fetchModelInfo() {
 
 async function fetchCurrentConditions(isAuto = false) {
   try {
-    const response = await fetch(`${API_URL}/current-conditions`);
+    const response = await fetch(`${API_URL}/current-conditions`, { cache: 'no-store' });
     if (!response.ok) throw new Error('Network response was not ok');
     
     const data = await response.json();

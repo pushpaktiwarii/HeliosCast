@@ -38,11 +38,11 @@ def fetch_live_noaa_data():
     global NOAA_CACHE
     now = time.time()
     
-    if now - NOAA_CACHE["timestamp"] < 30:
+    if now - NOAA_CACHE["timestamp"] < 15:
         if NOAA_CACHE["data"]:
             return NOAA_CACHE["data"]
         else:
-            raise Exception("NOAA API is on a 30-second cooldown due to a previous failure.")
+            raise Exception("NOAA API is on a 15-second cooldown due to a previous failure.")
             
     NOAA_CACHE["timestamp"] = now
 
