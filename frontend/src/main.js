@@ -172,8 +172,18 @@ function updateLiveDashboard(data, alerts) {
         const latestAlerts = alerts.slice(0, 3);
         const alertMessages = latestAlerts.map(a => {
             const time = new Date(a.issue_datetime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-            return `[${time}] ${a.message}`;
-        }).join('<br><hr style="border: none; border-top: 1px solid rgba(239, 68, 68, 0.2); margin: 0.75rem 0;">');
+            
+            let msg = a.message || '';
+            msg = msg.replace(/Space Weather Message Code:.*?\n/g, '');
+            msg = msg.replace(/Serial Number:.*?\n/g, '');
+            msg = msg.replace(/Issue Time:.*?\n/g, '');
+            msg = msg.replace(/NOAA Space Weather Scale descriptions can be found at\s*www\.swpc\.noaa\.gov\/noaa-scales-explanation/g, '');
+            
+            msg = msg.trim().replace(/\n{2,}/g, '<br><br>').replace(/\n/g, '<br>');
+            msg = msg.replace(/(WARNING:|ALERT:|SUMMARY:|WATCH:|CANCELLATION:|Potential Impacts:)/g, '<strong style="color: var(--text-primary);">$1</strong>');
+            
+            return `<div style="margin-bottom: 0.5rem;"><span style="color: var(--text-muted); font-size: 0.75rem;">[${time}]</span><br><div style="margin-top: 0.25rem;">${msg}</div></div>`;
+        }).join('<hr style="border: none; border-top: 1px solid rgba(239, 68, 68, 0.2); margin: 0.75rem 0;">');
         tickerText.innerHTML = alertMessages;
     } else {
         tickerContainer.style.display = 'none';

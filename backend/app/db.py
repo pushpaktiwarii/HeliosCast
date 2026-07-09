@@ -67,9 +67,9 @@ class Database:
                         clean_ts += '+00:00'
                     target_dt = datetime.fromisoformat(clean_ts) + timedelta(minutes=60)
                     
-                    # Find the closest historical point that matches the target time (within 10 minutes)
+                    # Find the closest historical point that matches the target time (within 3 minutes to guarantee finding a 5-minute interval)
                     best_match = None
-                    min_diff = 601
+                    min_diff = 181
                     for point in history_data:
                         point_ts = point['timestamp'].replace('Z', '+00:00')
                         if '+' not in point_ts and '-' not in point_ts[10:]:
