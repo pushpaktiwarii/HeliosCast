@@ -168,22 +168,31 @@ function updateLiveDashboard(data, alerts) {
         if (alertsTitle) {
             alertsTitle.innerText = `${alerts.length} NOAA Active Alert${alerts.length > 1 ? 's' : ''}`;
         }
-        // Extract the latest 3 alerts to avoid huge marquee text
         const latestAlerts = alerts.slice(0, 3);
         const alertMessages = latestAlerts.map(a => {
             const time = new Date(a.issue_datetime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
             
             let msg = a.message || '';
-            msg = msg.replace(/Space Weather Message Code:.*?\n/g, '');
-            msg = msg.replace(/Serial Number:.*?\n/g, '');
-            msg = msg.replace(/Issue Time:.*?\n/g, '');
-            msg = msg.replace(/NOAA Space Weather Scale descriptions can be found at\s*www\.swpc\.noaa\.gov\/noaa-scales-explanation/g, '');
+            msg = msg.replace(/^Space Weather Message Code:.*$/gm, '');
+            msg = msg.replace(/^Serial Number:.*$/gm, '');
+            msg = msg.replace(/^Issue Time:.*$/gm, '');
+            msg = msg.replace(/^Valid From:.*$/gm, '');
+            msg = msg.replace(/^Valid To:.*$/gm, '');
+            msg = msg.replace(/^Warning Conditions:.*$/gm, '');
+            msg = msg.replace(/^Threshold Reached:.*$/gm, '');
+            msg = msg.replace(/^Synoptic Period:.*$/gm, '');
+            msg = msg.replace(/^Active Warning:.*$/gm, '');
+            msg = msg.replace(/^Comment:.*$/gm, '');
+            msg = msg.replace(/NOAA Space Weather Scale descriptions can be found.*$/gm, '');
             
-            msg = msg.trim().replace(/\n{2,}/g, '<br><br>').replace(/\n/g, '<br>');
-            msg = msg.replace(/(WARNING:|ALERT:|SUMMARY:|WATCH:|CANCELLATION:|Potential Impacts:)/g, '<strong style="color: var(--text-primary);">$1</strong>');
+            // Clean up empty lines
+            msg = msg.replace(/^\s*[\r\n]/gm, '');
             
-            return `<div style="margin-bottom: 0.5rem;"><span style="color: var(--text-muted); font-size: 0.75rem;">[${time}]</span><br><div style="margin-top: 0.25rem;">${msg}</div></div>`;
-        }).join('<hr style="border: none; border-top: 1px solid rgba(239, 68, 68, 0.2); margin: 0.75rem 0;">');
+            msg = msg.trim().replace(/\n/g, '<br>');
+            msg = msg.replace(/(WARNING:|ALERT:|SUMMARY:|WATCH:|CANCELLATION:|Potential Impacts:|Aurora:|Induced Currents:)/g, '<strong style="color: var(--accent-color);">$1</strong>');
+            
+            return `<div style="margin-bottom: 0.75rem; padding: 0.75rem; background: var(--panel-hover-bg); border-radius: 6px; border-left: 3px solid var(--accent-color);"><span style="color: var(--text-muted); font-size: 0.75rem; font-weight: 600;">[${time}]</span><br><div style="margin-top: 0.4rem; font-size: 0.85rem; line-height: 1.4;">${msg}</div></div>`;
+        }).join('');
         tickerText.innerHTML = alertMessages;
     } else {
         tickerContainer.style.display = 'none';
