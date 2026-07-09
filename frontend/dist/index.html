@@ -1,175 +1,275 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>HeliosCast | Advanced Space Weather Intelligence</title>
+    <meta name="description" content="AI-powered real-time Space Weather monitoring and prediction platform." />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <title>HelioCast | Space Weather Intelligence</title>
-    <script type="module" crossorigin src="/assets/index-C4wVU8hQ.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-CBuKgs4J.css">
+    <script type="module" crossorigin src="/assets/index-J9yljLMd.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-UZpEz31U.css">
   </head>
   <body>
     <div id="app">
-      <header class="glass-panel">
+      <header class="header glass">
         <div class="logo">
-          <span class="logo-icon">☀️</span>
-          <h1>HelioCast</h1>
+          <h1>HeliosCast</h1>
+          <span class="badge">v2.0</span>
         </div>
-        <nav>
-          <ul id="main-nav">
-            <li id="nav-dashboard" class="active">Dashboard</li>
-            <li id="nav-analytics">Analytics</li>
-            <li id="nav-settings">Settings</li>
-          </ul>
+        <nav class="nav-tabs">
+          <button class="tab-btn active" data-tab="live">Live Overview</button>
+          <button class="tab-btn" data-tab="history">Prediction History</button>
+          <button class="tab-btn" data-tab="training">Model Training</button>
+          <a href="/docs" target="_blank" class="tab-btn api-btn" style="text-decoration: none; display: flex; align-items: center; gap: 4px; color: var(--text-primary);">
+            API Portal
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+          </a>
         </nav>
         <div class="status-indicator">
-          <span class="dot live"></span> System Online
+          <div class="dot active" id="status-dot"></div>
+          <span id="status-text">System Online</span>
         </div>
       </header>
 
-      <main id="view-dashboard" class="dashboard view-section active">
-        
-        <!-- Live Data Header -->
-        <div class="section-title">
-          <h2>CURRENT CONDITIONS <span class="badge live-badge">LATEST NOAA FEED</span></h2>
-          <p>Latest telemetry from space (~15 min delay).</p>
-        </div>
+      <main class="main-content">
+        <!-- Live Alerts Ticker -->
+        <details id="alerts-ticker" class="alerts-ticker glass" style="display: none; margin-bottom: 1rem; padding: 0.75rem 1rem; border-left: 2px solid var(--risk-high); border-radius: 4px; cursor: pointer;">
+          <summary style="display: flex; align-items: center; gap: 0.5rem; outline: none;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--risk-high)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+            <strong id="alerts-title" style="color: var(--risk-high);">NOAA Active Alerts</strong>
+            <span style="margin-left: auto; font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">(Expand / Collapse)</span>
+          </summary>
+          <div id="alerts-text" style="color: var(--text-primary); font-size: 0.85rem; line-height: 1.6; max-height: 200px; overflow-y: auto; padding-right: 0.5rem; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border-color);">
+            No active alerts.
+          </div>
+        </details>
 
-        <!-- Top Metrics Cards -->
-        <section class="metrics-grid">
-          <div class="metric-card panel" id="card-speed">
-            <div class="metric-header">Solar Wind Speed</div>
-            <div class="metric-value">-- <span class="unit">km/s</span></div>
-            <div class="metric-trend">LATEST OBSERVATION</div>
+        <!-- TAB: LIVE OVERVIEW -->
+        <section id="tab-live" class="tab-content active">
+          
+          <!-- TL;DR Forecast Banner -->
+          <div class="tldr-banner glass" id="tldr-banner">
+            <span class="tldr-icon" id="tldr-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+            </span>
+            <div class="tldr-text">
+              <h2 id="tldr-title">Checking Space Weather...</h2>
+              <p id="tldr-desc">Analyzing the latest data from NASA satellites.</p>
+            </div>
           </div>
-          <div class="metric-card panel" id="card-density">
-            <div class="metric-header">Proton Density</div>
-            <div class="metric-value">-- <span class="unit">p/cm³</span></div>
-            <div class="metric-trend">LATEST OBSERVATION</div>
+
+          <div class="dashboard-grid top-metrics">
+            <div class="card metric-card">
+              <h3>
+                Solar Wind Speed
+                <span class="tooltip" data-tip="How fast particles from the sun are traveling towards Earth. Normal is ~400 km/s."><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-left: 4px;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></span>
+              </h3>
+              <div class="value" id="current-speed">-- km/s</div>
+              <div class="sub-text">Live from Satellites</div>
+            </div>
+            
+            <div class="card metric-card primary-gradient">
+              <h3>
+                AI Forecast (1 Hour)
+                <span class="tooltip" data-tip="Our AI's prediction of what the solar wind speed will be in 1 hour."><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-left: 4px;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></span>
+              </h3>
+              <div class="value" id="predicted-speed">-- km/s</div>
+              <div class="sub-text">Range: <span id="conf-interval">--</span></div>
+            </div>
+            
+            <div class="card metric-card risk-card">
+              <h3>
+                Storm Risk
+                <span class="tooltip" data-tip="Chance of a Geomagnetic Storm. High risk can affect power grids and GPS."><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-left: 4px;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></span>
+              </h3>
+              <div class="value risk-level" id="storm-risk">--</div>
+              <div class="sub-text">Storm Probability: <span id="risk-prob">--</span>%</div>
+            </div>
+            
+            <div class="card metric-card">
+              <h3>
+                Magnetic Shield (Bz)
+                <span class="tooltip" data-tip="Earth's shield status. If negative (-), the shield is open and solar storms can enter."><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-left: 4px;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></span>
+              </h3>
+              <div class="value" id="current-bz">-- nT</div>
+              <div class="sub-text">Lower is more dangerous</div>
+            </div>
           </div>
-          <div class="metric-card panel" id="card-temperature">
-            <div class="metric-header">Plasma Temp</div>
-            <div class="metric-value">-- <span class="unit">K</span></div>
-            <div class="metric-trend">LATEST OBSERVATION</div>
+
+          <div class="dashboard-grid split">
+            <div class="card xai-card glass">
+              <h2>
+                Prediction Rationale
+                <span class="tooltip" data-tip="This explains the mathematical reasons our AI used to calculate the storm risk."><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-left: 4px;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></span>
+              </h2>
+              <p class="xai-summary" id="xai-summary">Analyzing...</p>
+              <div class="factors-list" id="top-factors">
+                <!-- Injected via JS -->
+              </div>
+            </div>
+            
+            <div class="card live-metrics-card glass">
+              <h2>Space Physics Parameters</h2>
+              <div class="params-grid">
+                <div class="param-item">
+                  <span>Particle Density <span class="tooltip" data-tip="Amount of solar particles hitting us per cubic centimeter."><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-left: 4px;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></span></span>
+                  <strong id="live-density">-- p/cc</strong>
+                </div>
+                <div class="param-item">
+                  <span>Temperature <span class="tooltip" data-tip="Heat of the solar plasma."><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-left: 4px;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></span></span>
+                  <strong id="live-temp">-- K</strong>
+                </div>
+                <div class="param-item">
+                  <span>Wind Pressure <span class="tooltip" data-tip="The physical force of the solar wind pushing against Earth."><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-left: 4px;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></span></span>
+                  <strong id="live-pressure">-- nPa</strong>
+                </div>
+                <div class="param-item">
+                  <span>Total Magnetism (Bt) <span class="tooltip" data-tip="The total strength of the interplanetary magnetic field."><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-left: 4px;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></span></span>
+                  <strong id="live-bt">-- nT</strong>
+                </div>
+              </div>
+            </div>
           </div>
-          <div class="metric-card panel" id="card-bz">
-            <div class="metric-header">Magnetic Field (Bz)</div>
-            <div class="metric-value">-- <span class="unit">nT</span></div>
-            <div class="metric-trend">LATEST OBSERVATION</div>
+
+          <!-- Generative AI Analyst Report -->
+          <div class="dashboard-grid">
+            <div class="card analyst-card glass">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <h2>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-color)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom; margin-right: 6px;"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>
+                  Automated Telemetry Assessment
+                </h2>
+                <span class="badge" style="border-color: var(--border-color); color: var(--text-muted); font-size: 0.65rem;">System Log</span>
+              </div>
+              <div id="ai-analyst-report" style="line-height: 1.6; color: var(--text-primary); font-size: 1rem;">
+                <span style="opacity: 0.5;">Generating AI situation report based on live parameters...</span>
+              </div>
+            </div>
+          </div>
+
+        </section>
+
+        <!-- TAB: PREDICTION HISTORY -->
+        <section id="tab-history" class="tab-content">
+          <div class="dashboard-grid split">
+            <div class="card history-table-card glass">
+              <h2>Prediction Accuracy Tracker</h2>
+              <p style="color:var(--text-secondary); margin-bottom:1rem; font-size:0.9rem;">This table compares the AI's 1-hour forecast against reality.</p>
+              <div class="table-responsive">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>Prediction Time</th>
+                      <th>Target Time (+1H)</th>
+                      <th>Predicted (km/s)</th>
+                      <th>Actual (km/s)</th>
+                      <th>Error</th>
+                      <th>Predicted Risk</th>
+                    </tr>
+                  </thead>
+                  <tbody id="history-tbody">
+                    <!-- Injected via JS -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div class="card error-analysis-card glass">
+              <h2>Error Analysis</h2>
+              <div class="error-metrics">
+                <div class="error-box">
+                  <span>Average Error (MAE)</span>
+                  <strong id="ea-avg">--</strong>
+                </div>
+                <div class="error-box">
+                  <span>Worst Error</span>
+                  <strong id="ea-worst">--</strong>
+                </div>
+              </div>
+            </div>
           </div>
         </section>
 
-        <div class="main-content">
-          <!-- Chart Section -->
-          <section class="chart-section panel">
-            <header class="section-header">
-              <h2>PAST 24 HOURS (OBSERVED SPEED)</h2>
-              <div class="controls">
-                <button class="btn btn-sm" id="chart-status-btn">Latest Telemetry</button>
+        <!-- TAB: MODEL TRAINING -->
+        <section id="tab-training" class="tab-content">
+          <div class="card glass" style="margin-bottom: 1.5rem;">
+            <h2 style="font-size: 1.5rem; margin-bottom: 0.5rem; color: var(--primary);">System Architecture & ML Pipeline</h2>
+            <p style="color:var(--text-secondary); font-size:0.95rem; line-height: 1.6;">
+              HeliosCast utilizes a hybrid Machine Learning pipeline designed to predict solar wind speeds and classify geomagnetic storm risks. 
+              The models are trained on the high-resolution <strong>OMNI dataset</strong>, which contains decades of near-Earth solar wind magnetic field and plasma parameters. 
+              Data is resampled to 5-minute intervals, missing values are imputed using forward-filling interpolation, and the target variables are shifted to create a strict <strong>T + 1 Hour forecast horizon</strong>.
+            </p>
+          </div>
+
+          <div class="dashboard-grid split">
+            <div class="card summary-card glass">
+              <h2>Training Corpus Stats</h2>
+              <div class="training-stats" style="margin-top: 1rem;">
+                <div class="stat"><span>Total Records</span><strong id="mt-dataset">--</strong></div>
+                <div class="stat"><span>Input Features</span><strong id="mt-feature-count">--</strong></div>
+                <div class="stat"><span>Primary Engine</span><strong id="mt-best" class="highlight">--</strong></div>
               </div>
-            </header>
-            <div class="chart-container">
-              <canvas id="speedChart"></canvas>
             </div>
-          </section>
 
-          <!-- Prediction Section -->
-          <aside class="prediction-section panel">
-            <header class="section-header">
-              <h2>FUTURE AI PREDICTION <span class="badge ai-badge">MACHINE LEARNING</span></h2>
-            </header>
-            <div class="forecast-content">
-              <div class="forecast-main">
-                <div class="forecast-label">AI Forecast (1 Hour Later)</div>
-                <div class="forecast-value" id="forecast-speed">-- km/s</div>
-                <div class="uncertainty-label" id="forecast-interval">± -- km/s (95% CI)</div>
+            <div class="card glass feature-list-card">
+              <h2>Feature Engineering Space</h2>
+              <p style="color:var(--text-secondary); font-size:0.85rem; margin-top: 0.5rem; margin-bottom: 1rem;">
+                Features are grouped into Raw Physics (e.g. Density, Bz), Derived Parameters (e.g. Plasma Beta, Alfven Mach), and Temporal Lags (1h/3h delays, Rolling Averages, Derivatives).
+              </p>
+              <div id="feature-list" class="feature-list" style="display: flex; flex-wrap: wrap; gap: 8px;">
+                <!-- Injected via JS -->
               </div>
-              
-              <div class="risk-assessment" id="risk-panel">
-                <span class="forecast-label">Risk Level</span>
-                <div class="risk-badge" id="risk-badge">Analyzing...</div>
-              </div>
-
-              <div class="feature-importance" id="shap-panel">
-                <h3>Top Drivers (SHAP)</h3>
-                <div id="shap-list">
-                  <!-- JS will populate this -->
-                  <div class="shap-item"><span class="shap-label">Pending</span><span class="shap-val">--</span></div>
-                </div>
-              </div>
-              
-              <button class="btn btn-primary" id="btn-refresh">Run Deep Analysis</button>
             </div>
-          </aside>
-        </div>
-      </main>
+          </div>
 
-      <!-- Analytics View -->
-      <main id="view-analytics" class="dashboard view-section hidden">
-        <div class="section-title">
-          <h2>SYSTEM ANALYTICS <span class="badge ai-badge">MACHINE LEARNING</span></h2>
-          <p>Model architecture and performance metrics.</p>
-        </div>
-        
-        <div class="main-content" style="grid-template-columns: 1fr;">
-          <section class="panel" style="padding: 2rem;">
-            <h3 style="color: var(--primary-color); margin-bottom: 1rem; font-family: var(--font-mono); text-transform: uppercase;">Active Model Info</h3>
-            <ul style="list-style: none; display: flex; flex-direction: column; gap: 1rem;">
-              <li style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--panel-border); padding-bottom: 0.5rem;">
-                <span style="color: var(--text-secondary);">Algorithm</span>
-                <strong id="analytics-algorithm">Random Forest Regressor</strong>
-              </li>
-              <li style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--panel-border); padding-bottom: 0.5rem;">
-                <span style="color: var(--text-secondary);">Training Dataset</span>
-                <strong id="analytics-dataset">OMNI2 (NASA/NOAA)</strong>
-              </li>
-              <li style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--panel-border); padding-bottom: 0.5rem;">
-                <span style="color: var(--text-secondary);">Input Features</span>
-                <strong id="analytics-features">Speed, Density, Temp, Bz (Lag t-1, t-2)</strong>
-              </li>
-              <li style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--panel-border); padding-bottom: 0.5rem;">
-                <span style="color: var(--text-secondary);">Root Mean Squared Error (RMSE)</span>
-                <strong style="color: var(--success-color);" id="analytics-rmse">17.89 km/s</strong>
-              </li>
-              <li style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--panel-border); padding-bottom: 0.5rem;">
-                <span style="color: var(--text-secondary);">Mean Absolute Error (MAE)</span>
-                <strong style="color: var(--success-color);" id="analytics-mae">10.44 km/s</strong>
-              </li>
-              <li style="display: flex; justify-content: space-between; padding-bottom: 0.5rem;">
-                <span style="color: var(--text-secondary);">Interpretability Engine</span>
-                <strong id="analytics-interpretability">SHAP (TreeExplainer)</strong>
-              </li>
-            </ul>
-          </section>
-        </div>
-      </main>
-
-      <!-- Settings View -->
-      <main id="view-settings" class="dashboard view-section hidden">
-        <div class="section-title">
-          <h2>SYSTEM SETTINGS <span class="badge" style="background-color: var(--panel-border); color: var(--text-primary);">CONFIGURATION</span></h2>
-          <p>Adjust data fetching and display parameters.</p>
-        </div>
-        
-        <div class="main-content" style="grid-template-columns: 1fr;">
-          <section class="panel" style="padding: 2rem;">
-            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--panel-border); padding-bottom: 1rem;">
-              <div>
-                <h3 style="font-size: 1rem; color: var(--text-primary); margin-bottom: 0.25rem;">Data Auto-Refresh</h3>
-                <p style="font-size: 0.85rem; color: var(--text-secondary);">How often to fetch telemetry from NOAA SWPC.</p>
-              </div>
-              <select id="setting-refresh" style="background: var(--panel-bg); color: var(--text-primary); border: 1px solid var(--panel-border); padding: 0.5rem; border-radius: 4px; font-family: var(--font-main);">
-                <option value="30000">Every 30 Seconds (Polling)</option>
-                <option value="60000">Every 1 Minute (Polling)</option>
-                <option value="300000">Every 5 Minutes (Polling)</option>
-                <option value="0">Off (Manual Only)</option>
-              </select>
+          <div class="dashboard-grid split" style="margin-top: 1.5rem;">
+            <div class="card comparison-card glass">
+              <h3>Regression Benchmark (T+1H Speed)</h3>
+              <p style="color:var(--text-secondary); font-size:0.85rem; margin-top: 0.5rem; margin-bottom: 1rem;">
+                Predicting the exact solar wind speed (km/s). Evaluated using Mean Absolute Error (MAE), Root Mean Squared Error (RMSE), and R² Variance Score.
+              </p>
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Algorithm</th>
+                    <th>MAE</th>
+                    <th>RMSE</th>
+                    <th>R² Score</th>
+                  </tr>
+                </thead>
+                <tbody id="mt-reg-body">
+                </tbody>
+              </table>
             </div>
-          </section>
-        </div>
-      </main>
 
+            <div class="card comparison-card glass">
+              <h3>Classification Benchmark (Storm Risk)</h3>
+              <p style="color:var(--text-secondary); font-size:0.85rem; margin-top: 0.5rem; margin-bottom: 1rem;">
+                Categorizing risk into Normal, Elevated, or High based on predicted solar activity. Evaluated using multi-class Accuracy and weighted F1-Score.
+              </p>
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Algorithm</th>
+                    <th>Accuracy</th>
+                    <th>F1 Score</th>
+                  </tr>
+                </thead>
+                <tbody id="mt-clf-body">
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="card chart-container glass" style="margin-top: 1.5rem; height: 350px;">
+            <h3>Global Feature Importance (SHAP Approximation)</h3>
+            <canvas id="chart-feature-imp"></canvas>
+          </div>
+        </section>
+
+      </main>
     </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   </body>
 </html>
+

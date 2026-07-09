@@ -137,19 +137,22 @@ function updateLiveDashboard(data, alerts) {
 
     if (pred.storm_risk === 'High' || pred.storm_risk === 'Extreme') {
         banner.style.borderLeftColor = 'var(--risk-high)';
-        banner.style.background = 'rgba(239, 68, 68, 0.1)';
+        banner.style.background = 'transparent';
         bIcon.innerText = '!';
+        bIcon.style.color = 'var(--risk-high)';
         bTitle.innerText = 'Geomagnetic Storm Warning.';
         bDesc.innerText = 'Fast solar wind and negative magnetic fields are hitting Earth. Power grids and GPS may experience minor issues.';
     } else if (pred.storm_risk === 'Moderate') {
         banner.style.borderLeftColor = 'var(--risk-medium)';
-        banner.style.background = 'rgba(245, 158, 11, 0.1)';
+        banner.style.background = 'transparent';
         bIcon.innerText = '!';
+        bIcon.style.color = 'var(--risk-medium)';
         bTitle.innerText = 'Space Weather is Active.';
         bDesc.innerText = 'Conditions are slightly elevated. Auroras may be visible at high latitudes, but no major threats to satellites.';
     } else {
         banner.style.borderLeftColor = 'var(--risk-low)';
-        banner.style.background = 'rgba(16, 185, 129, 0.1)';
+        banner.style.background = 'transparent';
+        bIcon.style.color = 'var(--risk-low)';
         bIcon.innerHTML = '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>';
         bTitle.innerText = 'All Systems Normal';
         bDesc.innerText = 'All solar indicators are currently within safe operational ranges.';
@@ -158,15 +161,19 @@ function updateLiveDashboard(data, alerts) {
     // NOAA Alerts Processing
     const tickerContainer = document.getElementById('alerts-ticker');
     const tickerText = document.getElementById('alerts-text');
+    const alertsTitle = document.getElementById('alerts-title');
     
     if (alerts && alerts.length > 0) {
         tickerContainer.style.display = 'block';
+        if (alertsTitle) {
+            alertsTitle.innerText = `${alerts.length} NOAA Active Alert${alerts.length > 1 ? 's' : ''}`;
+        }
         // Extract the latest 3 alerts to avoid huge marquee text
         const latestAlerts = alerts.slice(0, 3);
         const alertMessages = latestAlerts.map(a => {
             const time = new Date(a.issue_datetime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
             return `[${time}] ${a.message}`;
-        }).join(' &nbsp;&nbsp;&nbsp; | &nbsp;&nbsp;&nbsp; ');
+        }).join('<br><hr style="border: none; border-top: 1px solid rgba(239, 68, 68, 0.2); margin: 0.75rem 0;">');
         tickerText.innerHTML = alertMessages;
     } else {
         tickerContainer.style.display = 'none';

@@ -19,7 +19,7 @@
           <button class="tab-btn active" data-tab="live">Live Overview</button>
           <button class="tab-btn" data-tab="history">Prediction History</button>
           <button class="tab-btn" data-tab="training">Model Training</button>
-          <a href="http://localhost:8000/docs" target="_blank" class="tab-btn api-btn" style="text-decoration: none; display: flex; align-items: center; gap: 4px; color: #3b82f6;">
+          <a href="/docs" target="_blank" class="tab-btn api-btn" style="text-decoration: none; display: flex; align-items: center; gap: 4px; color: var(--text-primary);">
             API Portal
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
           </a>
@@ -32,13 +32,16 @@
 
       <main class="main-content">
         <!-- Live Alerts Ticker -->
-        <div id="alerts-ticker" class="alerts-ticker glass" style="display: none; margin-bottom: 1rem; padding: 0.75rem 1rem; border-left: 4px solid var(--risk-high); background: rgba(239, 68, 68, 0.05);">
-          <div style="display: flex; align-items: center; gap: 0.5rem;">
+        <details id="alerts-ticker" class="alerts-ticker glass" style="display: none; margin-bottom: 1rem; padding: 0.75rem 1rem; border-left: 2px solid var(--risk-high); border-radius: 4px; cursor: pointer;">
+          <summary style="display: flex; align-items: center; gap: 0.5rem; outline: none;">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--risk-high)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
-            <strong style="color: var(--risk-high); white-space: nowrap;">NOAA Active Alert:</strong>
-            <marquee id="alerts-text" scrollamount="6" style="flex: 1; margin-left: 0.5rem; color: var(--text-primary); font-size: 0.95rem; font-weight: 500;">No active alerts.</marquee>
+            <strong id="alerts-title" style="color: var(--risk-high);">NOAA Active Alerts</strong>
+            <span style="margin-left: auto; font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">(Expand / Collapse)</span>
+          </summary>
+          <div id="alerts-text" style="color: var(--text-primary); font-size: 0.85rem; line-height: 1.6; max-height: 200px; overflow-y: auto; padding-right: 0.5rem; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border-color);">
+            No active alerts.
           </div>
-        </div>
+        </details>
 
         <!-- TAB: LIVE OVERVIEW -->
         <section id="tab-live" class="tab-content active">
@@ -129,13 +132,13 @@
 
           <!-- Generative AI Analyst Report -->
           <div class="dashboard-grid">
-            <div class="card analyst-card glass" style="border-top: 4px solid var(--accent-color);">
+            <div class="card analyst-card glass">
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
                 <h2>
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-color)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom; margin-right: 6px;"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>
                   Automated Telemetry Assessment
                 </h2>
-                <span class="badge" style="background: rgba(217, 119, 6, 0.1); border-color: rgba(217, 119, 6, 0.4); color: var(--accent-color); font-size: 0.75rem;">System Log</span>
+                <span class="badge" style="border-color: var(--border-color); color: var(--text-muted); font-size: 0.65rem;">System Log</span>
               </div>
               <div id="ai-analyst-report" style="line-height: 1.6; color: var(--text-primary); font-size: 1rem;">
                 <span style="opacity: 0.5;">Generating AI situation report based on live parameters...</span>
