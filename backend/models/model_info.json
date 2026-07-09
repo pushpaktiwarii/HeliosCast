@@ -1,1 +1,82 @@
-{"algorithm": "Random Forest Regressor", "dataset": "OMNI2 (NASA/NOAA) 99997 records", "features": ["speed", "density", "temperature", "bz", "speed_t-1", "speed_t-2", "density_t-1", "bz_t-1"], "rmse": 17.89, "mae": 10.44, "interpretability": "SHAP (TreeExplainer)"}
+{
+    "dataset_records": 525876,
+    "features": [
+        "speed",
+        "density",
+        "temperature",
+        "bz",
+        "bx",
+        "by",
+        "bt",
+        "dynamic_pressure",
+        "electric_field",
+        "plasma_beta",
+        "alfven_mach",
+        "speed_lag_1h",
+        "density_lag_1h",
+        "bz_lag_1h",
+        "speed_lag_3h",
+        "density_lag_3h",
+        "bz_lag_3h",
+        "speed_ma_1h",
+        "bz_ma_1h",
+        "speed_roc",
+        "bz_std_1h"
+    ],
+    "best_regression": "LightGBM",
+    "regression_metrics": {
+        "Random Forest": {
+            "RMSE": 17.151438359588198,
+            "MAE": 11.016658961423005,
+            "R2": 0.9625016868322319
+        },
+        "XGBoost": {
+            "RMSE": 16.873076234714723,
+            "MAE": 10.981564089513151,
+            "R2": 0.9637089799340959
+        },
+        "LightGBM": {
+            "RMSE": 16.806847244806807,
+            "MAE": 10.913033649160349,
+            "R2": 0.9639933146352236
+        }
+    },
+    "best_classification": "Random Forest",
+    "classification_metrics": {
+        "Random Forest": {
+            "Accuracy": 0.8399381354428133,
+            "F1": 0.8358123362427305
+        },
+        "XGBoost": {
+            "Accuracy": 0.8383408128597145,
+            "F1": 0.8362972364003408
+        },
+        "LightGBM": {
+            "Accuracy": 0.8237113663446667,
+            "F1": 0.8237207083914101
+        }
+    },
+    "feature_importance": {
+        "speed": 434.0,
+        "density": 72.0,
+        "temperature": 230.0,
+        "bz": 36.0,
+        "bx": 319.0,
+        "by": 174.0,
+        "bt": 180.0,
+        "dynamic_pressure": 104.0,
+        "electric_field": 44.0,
+        "plasma_beta": 58.0,
+        "alfven_mach": 62.0,
+        "speed_lag_1h": 65.0,
+        "density_lag_1h": 139.0,
+        "bz_lag_1h": 47.0,
+        "speed_lag_3h": 153.0,
+        "density_lag_3h": 142.0,
+        "bz_lag_3h": 101.0,
+        "speed_ma_1h": 293.0,
+        "bz_ma_1h": 98.0,
+        "speed_roc": 87.0,
+        "bz_std_1h": 159.0
+    }
+}

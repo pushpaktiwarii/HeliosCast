@@ -19,6 +19,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Final force reload for the fully fixed model
 app.include_router(predictions_router, prefix="/api", tags=["Predictions"])
 
 frontend_dist = os.path.join(os.path.dirname(__file__), "..", "..", "frontend", "dist")

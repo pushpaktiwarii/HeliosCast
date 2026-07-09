@@ -17,4 +17,14 @@ dist-ssr/
 .DS_Store
 
 # Data
-backend/data/omni2_all_years.dat
+backend/data/*.dat
+backend/data/*.csv
+backend/data/*.db
+backend/models/*.pkl
+!backend/models/best_clf_model.pkl
+!backend/models/best_reg_model.pkl
+!backend/models/shap_explainer_reg.pkl
+!backend/models/model_info.json
+backend/data/*.asc
+backend/*.db
+backend/app/*.db
