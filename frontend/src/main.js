@@ -236,11 +236,11 @@ function updatePredictionHistory(history) {
     history.forEach(row => {
         const tr = document.createElement('tr');
         const d = new Date(row.timestamp);
-        const time = d.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        const time = d.toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute:'2-digit' });
         
         // Add 1 hour for Target Time
         d.setHours(d.getHours() + 1);
-        const targetTime = d.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        const targetTime = d.toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute:'2-digit' });
 
         const actual = row.actual_speed ? row.actual_speed.toFixed(2) : 'Pending';
         const error = row.error ? row.error.toFixed(2) : '--';
