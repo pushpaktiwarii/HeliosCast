@@ -258,14 +258,28 @@
               </table>
             </div>
           </div>
-
-          <div class="card chart-container glass" style="margin-top: 1.5rem;">
+          <div class="card glass" style="margin-top: 1.5rem; padding-bottom: 2rem;">
             <h3>Global Feature Importance (SHAP Approximation)</h3>
             <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem; line-height: 1.4;">
-              <strong>What is this?</strong> This chart uses SHAP (Explainable AI) to reveal the "Black Box". It shows which factors the AI relies on most to predict space weather. The longer the bar, the more critical that feature is for the AI's decision. For example, <strong>'bz'</strong> (Magnetic Field Z-Component) and <strong>'dynamic_pressure'</strong> are usually at the top, proving the AI has successfully learned real astrophysics!
+              <strong>What is this?</strong> This chart uses SHAP (Explainable AI) to reveal which factors the AI relies on most to predict space weather. The longer the bar, the more critical that feature is for the AI's decision.
             </p>
-            <div style="height: 350px; width: 100%;">
+            <div style="height: 350px; width: 100%; position: relative; margin-bottom: 2rem;">
               <canvas id="chart-feature-imp"></canvas>
+            </div>
+            
+            <div style="background: rgba(0,0,0,0.2); padding: 1rem; border-radius: 8px; font-size: 0.8rem; color: var(--text-muted); line-height: 1.5; column-count: 2; column-gap: 2rem;">
+              <strong style="color: var(--text-primary); display: block; margin-bottom: 0.5rem; column-span: all;">Feature Glossary:</strong>
+              <ul style="margin: 0; padding-left: 1.2rem;">
+                <li><strong>bx, by, bz:</strong> Magnetic Field Vector Components (nT)</li>
+                <li><strong>bt:</strong> Total Magnetic Field Strength</li>
+                <li><strong>speed:</strong> Solar Wind Plasma Speed (km/s)</li>
+                <li><strong>density:</strong> Proton Density (p/cc)</li>
+                <li><strong>temperature:</strong> Plasma Temperature (K)</li>
+                <li><strong>dynamic_pressure:</strong> Force exerted by solar wind</li>
+                <li><strong>ma_1h:</strong> 1-Hour Moving Average (Trend)</li>
+                <li><strong>std_1h:</strong> 1-Hour Standard Deviation (Volatility)</li>
+                <li><strong>lag_1h / 3h:</strong> Past data from 1 or 3 hours ago</li>
+              </ul>
             </div>
           </div>
         </section>
