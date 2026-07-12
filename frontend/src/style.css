@@ -47,8 +47,6 @@ body {
   transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 }
 .glass:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
   border-color: var(--border-hover);
 }
 
@@ -203,8 +201,6 @@ body {
 
 .metric-card:hover {
   border-color: var(--border-hover);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
 }
 
 .primary-gradient {
@@ -214,7 +210,6 @@ body {
 }
 .primary-gradient:hover {
   border-color: var(--accent-hover);
-  box-shadow: 0 8px 24px rgba(212, 136, 94, 0.25);
 }
 
 .metric-card .value {
