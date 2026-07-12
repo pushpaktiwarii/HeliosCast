@@ -8,7 +8,7 @@ This project was engineered to meet high-tier enterprise standards, focusing on 
 
 ## Live Demo
  **[http://150.230.239.72:8000/](http://150.230.239.72:8000/)**
-  **[http://helioscast.pushpaktiwari.tech/)**
+  **[http://helioscast.pushpaktiwari.tech/](http://helioscast.pushpaktiwari.tech/)**
 
  
 
