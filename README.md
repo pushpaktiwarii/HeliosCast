@@ -55,6 +55,3 @@ The ML pipeline is defined in `backend/scripts/train_model.py`. It uses a rigoro
 
 ## Live Alerts
 HeliosCast actively listens for real-time unstructured warnings broadcasted by NOAA and renders critical alerts globally on the frontend dashboard.
-
----
-*Built as a showcase for Advanced AI and Data Engineering.*
