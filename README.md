@@ -12,10 +12,6 @@ This project was engineered to meet high-tier enterprise standards, focusing on 
 
  
 
-## Author
-**Pushpak Tiwari**  
-[![GitHub](https://img.shields.io/badge/GitHub-pushpaktiwarii-blue?logo=github)](https://github.com/pushpaktiwarii/HeliosCast)
-
 ---
 
 ## Key Features
