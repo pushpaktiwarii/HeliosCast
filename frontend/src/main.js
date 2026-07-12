@@ -304,7 +304,7 @@ function updateModelTraining(modelJson) {
         const sortedImp = Object.entries(modelJson.feature_importance)
             .sort((a,b) => b[1] - a[1]).slice(0, 10);
         
-        createOrUpdateChart('chart-feature-imp', 'Importance', sortedImp.map(x => x[0]), sortedImp.map(x => x[1]), '#2f81f7');
+        createOrUpdateChart('chart-feature-imp', 'Importance', sortedImp.map(x => x[0]), sortedImp.map(x => x[1]), '#D4885E');
         
         // Feature List
         const featureList = document.getElementById('feature-list');
