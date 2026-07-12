@@ -7,6 +7,7 @@ import requests
 import asyncio
 import time
 import json
+import traceback
 from datetime import datetime
 from app.ml.predictor import predictor
 from app.db import db
@@ -194,3 +195,29 @@ async def get_alerts():
         return alerts
     except Exception as e:
         raise HTTPException(status_code=503, detail=f"NOAA API error: {str(e)}")
+
+async def background_prediction_task():
+    """Continuously fetches data and logs predictions every 5 minutes in the background."""
+    print("Started background prediction task...")
+    while True:
+        try:
+            global LAST_PREDICTED_TIMESTAMP
+            history, current = await asyncio.to_thread(fetch_live_noaa_data)
+            
+            pred_result = predictor.predict(current, history_df=NOAA_CACHE.get("history_df"))
+            
+            if current["timestamp"] != LAST_PREDICTED_TIMESTAMP:
+                db.log_prediction(pred_result["prediction"]["predicted_speed"], pred_result["prediction"]["storm_risk"])
+                
+                full_history = history["24h"] + [current]
+                db.update_actuals(full_history)
+                
+                LAST_PREDICTED_TIMESTAMP = current["timestamp"]
+                print(f"Background Task: Logged new prediction for {current['timestamp']}")
+                
+        except Exception as e:
+            print(f"Background prediction task error: {e}")
+            traceback.print_exc()
+            
+        # Wait 5 minutes before fetching again
+        await asyncio.sleep(300)

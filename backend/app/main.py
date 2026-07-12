@@ -3,13 +3,18 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 import os
-from app.api.predictions import router as predictions_router
+from app.api.predictions import router as predictions_router, background_prediction_task
+import asyncio
 
 app = FastAPI(
     title="HelioCast API",
     description="API for the AI-powered Space Weather Intelligence Platform",
     version="1.0.0"
 )
+
+@app.on_event("startup")
+async def startup_event():
+    asyncio.create_task(background_prediction_task())
 
 app.add_middleware(
     CORSMiddleware,
