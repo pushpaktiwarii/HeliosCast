@@ -101,6 +101,7 @@ class Database:
             cursor.execute('''
                 SELECT timestamp, predicted_speed, actual_speed, error, risk_class 
                 FROM predictions 
+                WHERE actual_speed IS NOT NULL
                 ORDER BY timestamp DESC LIMIT ?
             ''', (limit,))
             rows = cursor.fetchall()
