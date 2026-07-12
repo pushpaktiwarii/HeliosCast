@@ -1,4 +1,8 @@
+import logging
 from fastapi import APIRouter, HTTPException
+
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO)
 from pydantic import BaseModel
 from typing import List, Dict, Optional
 import os
@@ -61,7 +65,7 @@ def fetch_noaa_alerts():
             return data[:5]
         return []
     except Exception as e:
-        print(f"Error fetching alerts: {e}")
+        logger.error(f"Error fetching alerts: {e}")
         return []
 
 def fetch_live_noaa_data():
@@ -198,7 +202,7 @@ async def get_alerts():
 
 async def background_prediction_task():
     """Continuously fetches data and logs predictions every 5 minutes in the background."""
-    print("Started background prediction task...")
+    logger.info("Started background prediction task...")
     while True:
         try:
             global LAST_PREDICTED_TIMESTAMP
@@ -213,10 +217,10 @@ async def background_prediction_task():
                 db.update_actuals(full_history)
                 
                 LAST_PREDICTED_TIMESTAMP = current["timestamp"]
-                print(f"Background Task: Logged new prediction for {current['timestamp']}")
+                logger.info(f"Background Task: Logged new prediction for {current['timestamp']}")
                 
         except Exception as e:
-            print(f"Background prediction task error: {e}")
+            logger.error(f"Background prediction task error: {e}")
             traceback.print_exc()
             
         # Wait 5 minutes before fetching again

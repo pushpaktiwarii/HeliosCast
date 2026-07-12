@@ -91,7 +91,8 @@ class Database:
                             WHERE id = ?
                         ''', (actual_speed, error, pred_id))
                 except Exception as e:
-                    print(f"Error in update_actuals: {e}")
+                    import logging
+                    logging.getLogger(__name__).error(f"Error in update_actuals: {e}")
                     pass
             conn.commit()
 
