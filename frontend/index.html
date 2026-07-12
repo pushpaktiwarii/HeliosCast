@@ -259,9 +259,14 @@
             </div>
           </div>
 
-          <div class="card chart-container glass" style="margin-top: 1.5rem; height: 350px;">
+          <div class="card chart-container glass" style="margin-top: 1.5rem;">
             <h3>Global Feature Importance (SHAP Approximation)</h3>
-            <canvas id="chart-feature-imp"></canvas>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem; line-height: 1.4;">
+              <strong>What is this?</strong> This chart uses SHAP (Explainable AI) to reveal the "Black Box". It shows which factors the AI relies on most to predict space weather. The longer the bar, the more critical that feature is for the AI's decision. For example, <strong>'bz'</strong> (Magnetic Field Z-Component) and <strong>'dynamic_pressure'</strong> are usually at the top, proving the AI has successfully learned real astrophysics!
+            </p>
+            <div style="height: 350px; width: 100%;">
+              <canvas id="chart-feature-imp"></canvas>
+            </div>
           </div>
         </section>
 
