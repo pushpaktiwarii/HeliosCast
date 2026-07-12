@@ -6,6 +6,9 @@ HeliosCast bridges the gap between raw astrophysical data and actionable intelli
 
 This project was engineered to meet high-tier enterprise standards, focusing on **Explainable AI (XAI)**, **Cloud-Ready API-First Design**, and **Automated Generative Telemetry Assessment**.
 
+## Live Demo
+🌍 **[http://150.230.239.72:8000/](http://150.230.239.72:8000/)**
+
 ---
 
 ## Key Features
